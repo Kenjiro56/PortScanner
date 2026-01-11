@@ -11,17 +11,17 @@ func worker(ports, results chan int) {
 		address := fmt.Sprintf("scanme.nmap.org:%d", p)
 		conn, err := net.Dial("tcp", address)
 		if err != nil {
-			results <- 0
+			results <- 0 // ポートが閉じていたら、0を送る
 			continue
 		}
 		conn.Close()
-		results <- p
+		results <- p // ポートが開いている場合は、ポート番号を送る
 	}
 }
 func main() {
-	ports := make(chan int, 100)
+	ports := make(chan int, 100) // 100個のポートを並列してスキャンする
 	results := make(chan int)
-	var openports []int
+	var openports []int // 空いているポートを格納（後でソートする）
 
 	for i := 0; i < cap(ports); i++ {
 		go worker(ports, results)
